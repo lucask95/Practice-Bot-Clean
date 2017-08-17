@@ -12,6 +12,7 @@ class grid {
         this.rows = rows;
         this.cols = cols;
         this.populateGrid(rows, cols);
+        this.dirtyTiles = [];
     }
 
     populateGrid(rows, cols) {
@@ -19,6 +20,9 @@ class grid {
             var row = [];
             for (var j = 0; j < cols; j++) {
                 var temp = new tile(.25, i, j);
+                // having a dirty tiles list helps with pathfinding
+                if (temp.dirty == true)
+                    this.dirtyTiles.push(temp);
                 row.push(temp);
             }
             this.grid.push(row);
@@ -50,6 +54,22 @@ class bot {
 // -----------------------------------------------------//
 
 // TODO: Implement greedy algorithm: nearest neighbor
+
+// findPath() takes in a grid and returns
+// the list of tiles to clean, in order.
+// ex: return [
+//     [0,1] // go to tile 0,1 first
+//     [1,3] // go to tile 1,3 second
+//     [3,4] // go to tile 3,4 third
+// ];
+function findPath(gridIn) {
+    var tilePath = [];
+    var dirtyTiles = [];
+    for (var i = 0; i < gridIn.dirtyTiles.length; i++) {
+        // for each dirty tile, find the nearest dirty tile
+    }
+    return tilePath;
+}
 
 // -----------------------------------------------------//
 // Initialization
