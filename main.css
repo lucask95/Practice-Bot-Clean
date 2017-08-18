@@ -23,6 +23,10 @@
     height: 64px;
     position: absolute;
     z-index: -1;
+    -webkit-transition: background-color 250ms ease-out;
+    -moz-transition:    background-color 250ms ease-out;
+    -o-transition:      background-color 250ms ease-out;
+    transition:         background-color 250ms ease-out;
 }
 
 .dirty {
