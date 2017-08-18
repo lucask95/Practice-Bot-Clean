@@ -59,11 +59,55 @@ class bot {
 
 var myGrid;
 var myBot;
+var animationTimer;
+var botPath = [];
 var inProgress = false;
 
 // -----------------------------------------------------//
 // Algorithm
 // -----------------------------------------------------//
+
+// returns list of moves to do, in order.
+function findMoves(tilePath) {
+    // moves: 0=up, 1=down, 2=left, 3=right, 4=clean
+    var move = -1;
+    var moves = ["UP","DOWN","LEFT","RIGHT","CLEAN"];
+    var moveList = [];
+    var i = myBot.i;
+    var j = myBot.j;
+    var dy = 0;
+    var dx = 0;
+
+    // simulates bot movement and choosing move
+    while (tilePath.length > 0) {
+        dy = i - tilePath[0].i;
+        dx = j - tilePath[0].j;
+        if (dy == 0 && dx == 0) {
+            // clean; remove tile from tile path once clean
+            move = 4;
+            tilePath.splice(0, 1);
+        }
+        else if (dy > 0) {
+            i--; // up
+            move = 0;
+        }
+        else if (dy < 0) {
+            i++; // down
+            move = 1;
+        }
+        else if (dx > 0) {
+            j--; // left
+            move = 2;
+        }
+        else if (dx < 0) {
+            j++; // right
+            move = 3;
+        }
+        moveList.push(moves[move]);
+    }
+    console.log(moveList);
+    return moveList;
+}
 
 // findPath() takes in a grid and returns
 // the list of tiles to clean, in order.
@@ -113,7 +157,15 @@ function findPath() {
         dirtyTiles.splice(closestTileIndex, 1);
     }
 
-    return tilePath;
+    botPath = findMoves(tilePath);
+}
+
+// -----------------------------------------------------//
+// Animation
+// -----------------------------------------------------//
+
+function animateMove() {
+    clearTimeout(animationTimer);
 }
 
 // -----------------------------------------------------//
@@ -161,14 +213,18 @@ function renderBot() {
 }
 
 function startCleaning() {
+    if (inProgress)
+        return;
     var rows = parseInt($("#rowsIn").val());
     var cols = parseInt($("#colsIn").val());
     if (rows < 3 || cols < 3) {
         $("#moveLog").html("Grid must be at least 3x3");
         return;
     }
+    inProgress = true;
     myGrid = new grid(rows, cols);
     renderGrid();
     renderBot();
     findPath();
+    // animationTimer = setTimeout(animateMove, 1000);
 }
