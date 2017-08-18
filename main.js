@@ -192,13 +192,16 @@ function animateMove() {
     $("#botImage").animate({
         "top": ($(tileId).css("top")),
         "left": ($(tileId).css("left"))
-    });
+    }, 200);
 
     // remove most recent movement from the path and go on to the next move
     botPath.splice(0, 1);
     if (botPath.length > 0) {
+        setTimeout(animateMove, 250);
+    }
+    else {
         inProgress = false;
-        setTimeout(animateMove, 1000);
+        $("#startBtn").prop("disabled",false);
     }
 }
 
@@ -257,9 +260,10 @@ function startCleaning() {
     }
     $("#moveLog").html("");
     inProgress = true;
+    $("#startBtn").prop("disabled",true);
     myGrid = new grid(rows, cols);
     renderGrid();
     renderBot();
     findPath();
-    setTimeout(animateMove, 1000);
+    setTimeout(animateMove, 250);
 }
