@@ -108,8 +108,7 @@ function findMoves(tilePath) {
     return moveList;
 }
 
-// findPath() takes in a grid and returns
-// the list of tiles to clean, in order.
+// returns the list of tiles to clean, in order.
 // ex: return [
 //     [0,1] // go to tile 0,1 first
 //     [1,3] // go to tile 1,3 second
@@ -157,6 +156,27 @@ function findPath() {
     }
 
     botPath = findMoves(tilePath);
+}
+
+// finds the shortest path between all tiles by calculating every possible path
+// returns list of tiles to clean, in order. O(n!)
+// path should be an object containing a list of tiles and a path length
+function findPathBruteForce(path, tilesLeft) {
+    var shortestPath;
+    for (var i = 0; i < tilesLeft.length; i++) {
+        var tempTiles = tilesLeft;
+        var tempPath = path;
+        tempPath.push(tilesLeft[i]);
+        tempTiles.splice(i, 1);
+        tempPath = findPathBruteForce(tempPath, tempTiles);
+        /*
+        if (typeof shortestPath === "undefined" || shortestPath === null)
+            shortestPath = tempPath;
+        else if (tempPath.pathLength < shortestPath.pathLength)
+            shortestPath = tempPath;
+        */
+    }
+    return shortestPath;
 }
 
 // -----------------------------------------------------//
