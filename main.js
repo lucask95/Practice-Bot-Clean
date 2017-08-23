@@ -160,23 +160,60 @@ function findPath() {
 
 // finds the shortest path between all tiles by calculating every possible path
 // returns list of tiles to clean, in order. O(n!)
-// path should be an object containing a list of tiles and a path length
+// path = { pathLength: #, tiles: [tiles] }
 function findPathBruteForce(path, tilesLeft) {
-    var shortestPath;
-    for (var i = 0; i < tilesLeft.length; i++) {
+    var numLoops = tilesLeft.length;
+    var shortestPath = {
+        pathLength: -1,
+        tiles: []
+    };
+
+    for (var i = 0; i < numLoops; i++) {
         var tempTiles = tilesLeft;
         var tempPath = path;
-        tempPath.push(tilesLeft[i]);
+        var tempLength = 0;
+
+        console.log("findPathBruteForce",numLoops,"loop",i,"tilesLeft",tilesLeft);
+        console.log("tempPath", tempPath, "tempLength", tempLength, "tempTiles", tempTiles);
+
+        // add another tile to the path and get the number of tiles in the path
+        tempPath.tiles.push(tempTiles[i]);
+        tempLength = tempPath.tiles.length;
+
+        // update path length
+        if (tempLength > 1) {
+            tempPath.pathLength += Math.abs(tempPath.tiles[tempLength-1].i -
+                tempPath.tiles[tempLength-2].i);
+            tempPath.pathLength += Math.abs(tempPath.tiles[tempLength-1].j -
+                tempPath.tiles[tempLength-2].j);
+        }
+        else if (tempLength == 1) {
+            tempPath.pathLength += Math.abs(tempPath.tiles[tempLength-1].i - myBot.i);
+            tempPath.pathLength += Math.abs(tempPath.tiles[tempLength-1].j - myBot.j);
+        }
+
+        // remove the tile just added from the tilesLeft
         tempTiles.splice(i, 1);
-        tempPath = findPathBruteForce(tempPath, tempTiles);
-        /*
-        if (typeof shortestPath === "undefined" || shortestPath === null)
+        if (tempTiles.length > 0)
+            tempPath = findPathBruteForce(tempPath, tempTiles);
+
+        // if there is not yet a shortest path, the newest path must be the shortest
+        if (shortestPath.pathLength == -1)
             shortestPath = tempPath;
         else if (tempPath.pathLength < shortestPath.pathLength)
             shortestPath = tempPath;
-        */
     }
+
     return shortestPath;
+}
+
+function startFindPath() {
+    var path = {
+        pathLength: 0,
+        tiles: []
+    };
+    path = findPathBruteForce(path, myGrid.dirtyTiles);
+    botPath = findMoves(path.tiles);
 }
 
 // -----------------------------------------------------//
@@ -284,6 +321,6 @@ function startCleaning() {
     myGrid = new grid(rows, cols);
     renderGrid();
     renderBot();
-    findPath();
-    setTimeout(animateMove, 250);
+    startFindPath();
+    //setTimeout(animateMove, 250);
 }
