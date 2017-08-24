@@ -57,6 +57,7 @@ class bot {
 // Global Variables
 // -----------------------------------------------------//
 
+// TODO: Remove global variables
 var myGrid;
 var myBot;
 var animationTimer;
@@ -169,8 +170,9 @@ function findPathBruteForce(path, tilesLeft) {
     };
 
     for (var i = 0; i < numLoops; i++) {
-        var tempTiles = tilesLeft;
-        var tempPath = path;
+        // use cloneDeep to make copies of the variables rather than references
+        var tempTiles = _.cloneDeep(tilesLeft);
+        var tempPath = _.cloneDeep(path);
         var tempLength = 0;
 
         console.log("findPathBruteForce",numLoops,"loop",i,"tilesLeft",tilesLeft);
@@ -322,5 +324,5 @@ function startCleaning() {
     renderGrid();
     renderBot();
     startFindPath();
-    //setTimeout(animateMove, 250);
+    setTimeout(animateMove, 250);
 }
