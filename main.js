@@ -61,14 +61,14 @@ class bot {
 var myGrid;
 var myBot;
 var animationTimer;
-var botPath = [];
-var inProgress = false;
+var botMoves = [];
 
 // -----------------------------------------------------//
 // Algorithm
 // -----------------------------------------------------//
 
-// returns list of moves to do, in order.
+// returns list of moves to do, in order
+// ex: ["UP", "UP", "LEFT", "CLEAN"]
 function findMoves(tilePath) {
     // moves: 0=up, 1=down, 2=left, 3=right, 4=clean
     var move = -1;
@@ -156,27 +156,23 @@ function findPath() {
         dirtyTiles.splice(closestTileIndex, 1);
     }
 
-    botPath = findMoves(tilePath);
+    return tilePath;
 }
 
 // finds the shortest path between all tiles by calculating every possible path
 // returns list of tiles to clean, in order. O(n!)
 // path = { pathLength: #, tiles: [tiles] }
 function findPathBruteForce(path, tilesLeft) {
-    var numLoops = tilesLeft.length;
     var shortestPath = {
         pathLength: -1,
         tiles: []
     };
 
-    for (var i = 0; i < numLoops; i++) {
+    for (var i = 0; i < tilesLeft.length; i++) {
         // use cloneDeep to make copies of the variables rather than references
         var tempTiles = _.cloneDeep(tilesLeft);
         var tempPath = _.cloneDeep(path);
         var tempLength = 0;
-
-        console.log("findPathBruteForce",numLoops,"loop",i,"tilesLeft",tilesLeft);
-        console.log("tempPath", tempPath, "tempLength", tempLength, "tempTiles", tempTiles);
 
         // add another tile to the path and get the number of tiles in the path
         tempPath.tiles.push(tempTiles[i]);
@@ -209,26 +205,15 @@ function findPathBruteForce(path, tilesLeft) {
     return shortestPath;
 }
 
-function startFindPath() {
-    var path = {
-        pathLength: 0,
-        tiles: []
-    };
-    path = findPathBruteForce(path, myGrid.dirtyTiles);
-    botPath = findMoves(path.tiles);
-}
-
 // -----------------------------------------------------//
 // Animation
 // -----------------------------------------------------//
 
-
-// TODO: Calculate coordinates in findMoves() and in that function simply return
-// a list of coordinates. In this function just read coordinates and move accordingly
-
 function animateMove() {
+    var tileId = "#"+myBot.i+"_"+myBot.j;
+
     // calculate new bot coordinates
-    switch (botPath[0]) {
+    switch (botMoves[0]) {
         case "UP":
             myBot.i--;
             break;
@@ -247,21 +232,16 @@ function animateMove() {
     }
 
     // animate movement of the bot
-    var tileId = "#"+myBot.i+"_"+myBot.j;
     $("#botImage").animate({
         "top": ($(tileId).css("top")),
         "left": ($(tileId).css("left"))
     }, 200);
 
     // remove most recent movement from the path and go on to the next move
-    botPath.splice(0, 1);
-    if (botPath.length > 0) {
+    if (botMoves.splice(0, 1).length > 0)
         setTimeout(animateMove, 250);
-    }
-    else {
-        inProgress = false;
+    else
         $("#startBtn").prop("disabled",false);
-    }
 }
 
 // -----------------------------------------------------//
@@ -288,8 +268,8 @@ function renderGrid() {
                 "top": (i*64+15)+"px",
                 "left": (j*64+15)+"px"
             });
-        } // end of cols loop
-    } // end of rows loop
+        }
+    }
 }
 
 function renderBot() {
@@ -309,20 +289,23 @@ function renderBot() {
 }
 
 function startCleaning() {
-    if (inProgress)
-        return;
     var rows = parseInt($("#rowsIn").val());
     var cols = parseInt($("#colsIn").val());
     if (rows < 3 || cols < 3) {
-        $("#moveLog").html("Grid must be at least 3x3");
+        alert("Grid must be at least 3x3");
         return;
     }
-    $("#moveLog").html("");
-    inProgress = true;
+
+
     $("#startBtn").prop("disabled",true);
     myGrid = new grid(rows, cols);
     renderGrid();
     renderBot();
-    startFindPath();
+
+    // find path, then find moves for that path
+    var path = { pathLength: 0, tiles: [] };
+    botMoves = findMoves(findPathBruteForce(path, myGrid.dirtyTiles).tiles);
+
+    // start animation
     setTimeout(animateMove, 250);
 }
